@@ -100,7 +100,7 @@ This is a particularly good addition to the project because it demonstrates an u
 ## 📁 Project Structure
 
 ```text
-Gym project/
+llm-satisfaction-predictor/
 ├── data/
 │   └── raw/
 │       └── genai_llm_usage_dataset_1000.csv

@@ -32,18 +32,16 @@ try:
         initialize_app(cred)
         logger.info("Firebase Admin SDK initialized from FIREBASE_CREDENTIALS_JSON string.")
     else:
-        if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
-            logger.warning(
-                "Neither FIREBASE_CREDENTIALS_JSON nor GOOGLE_APPLICATION_CREDENTIALS is set. "
-                "Initializing Firebase with projectId only (this is sufficient for token verification)."
-            )
-            # Token verification only requires the project ID, not a full service account!
-            project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "llm-satisfaction-predictor")
+        # Token verification only requires the project ID, not a full service account!
+        # Even if GOOGLE_APPLICATION_CREDENTIALS is set in the environment (e.g. from an old setup),
+        # we explicitly provide the projectId to guarantee it works.
+        project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "llm-satisfaction-predictor")
+        
+        try:
             initialize_app(options={"projectId": project_id})
             logger.info(f"Firebase Admin SDK initialized with projectId: {project_id}")
-        else:
-            initialize_app()
-            logger.info("Firebase Admin SDK initialized using default credentials.")
+        except ValueError as e:
+            logger.debug(f"Firebase app already initialized: {e}")
 except ValueError as e:
     logger.debug(f"Firebase app initialization error (might be already initialized): {e}")
 except Exception as e:

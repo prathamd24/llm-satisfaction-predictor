@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore — Powerlifting ML Project
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── Data — raw CSVs are large; do not commit ──────────────────────────────────
+data/raw/*.csv
+data/processed/
+
+# ── Trained model files ───────────────────────────────────────────────────────
+models/*.pkl
+
+# ── MLflow ────────────────────────────────────────────────────────────────────
+mlruns/
+mlartifacts/
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Pytest cache ──────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Artifacts — commit metrics/CSV but not plot images (optional) ─────────────
+# Uncomment to also ignore artifact files:
+# artifacts/plots/
+# artifacts/metrics.json
+# artifacts/feature_importance.csv
+# artifacts/model_metadata.json

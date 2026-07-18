@@ -1,0 +1,148 @@
+import numpy as np 
+import pandas as pd 
+import seaborn as sns 
+import matplotlib.pyplot as plt 
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+from xgboost import XGBRegressor
+
+df = pd.DataFrame(pd.read_csv(r"C:\Users\Pratham Kumar\Downloads\openpowerlifting.csv"))
+
+#Analyse the data in table 
+
+df.drop(columns=['MeetID'], inplace=True)
+df.drop(columns=['Name'], inplace=True)
+df.drop(columns=['Squat4Kg'], inplace=True)
+df.drop(columns=['Bench4Kg'], inplace=True)
+df.drop(columns=['Deadlift4Kg'], inplace=True)
+df.drop(columns=['Division'], inplace=True)# having too much unique value 
+
+df["Age"] = df["Age"].fillna(df["Age"].median())
+df["BodyweightKg"] = df["BodyweightKg"].fillna(df["BodyweightKg"].median())
+df["Wilks"] = df["Wilks"].fillna(df["Wilks"].median())
+df = df.dropna(subset=["BestSquatKg"])
+df = df.dropna(subset=["BestDeadliftKg"])
+df = df.dropna(subset=["BestBenchKg"])
+df = df.dropna(subset=["Place"])
+df = df.dropna(subset=["WeightClassKg"])
+df = df.dropna(subset=["TotalKg"])
+
+#print(df.shape)
+#print(df.info())
+#print(df.describe())
+#print(df.describe(include='object'))
+
+#Analyse the data in graph formate 
+
+plt.figure(figsize=(8,5))
+plt.hist(df["TotalKg"], bins=40)
+plt.title("Distribution of TotalKg")
+plt.xlabel("TotalKg")
+plt.ylabel("Frequency")
+##plt.show()
+
+plt.boxplot(df["Age"])
+plt.title("Age Boxplot")
+#plt.show()
+
+df["Sex"].value_counts().plot(kind="bar")
+
+plt.figure(figsize=(10,8))
+sns.heatmap(df.corr(numeric_only=True),
+            annot=True,
+            cmap="coolwarm")
+#plt.show()
+
+plt.scatter(df["BestSquatKg"], df["TotalKg"])
+plt.xlabel("Best Squat")
+plt.ylabel("TotalKg")
+#plt.show()
+
+sns.pairplot(
+    df[[
+        "BodyweightKg",
+        "BestSquatKg",
+        "BestBenchKg",
+        "BestDeadliftKg",
+        "TotalKg"
+    ]]
+)
+
+# after plot analyses
+
+df[df["BestSquatKg"] < 0]
+
+df = df.drop_duplicates()
+df = df[
+    (df["BestSquatKg"] >= 0) &
+    (df["BestBenchKg"] >= 0) &
+    (df["BestDeadliftKg"] >= 0)
+]
+df[df["BodyweightKg"] < 30]
+
+
+# Encoding and standarazise the data
+
+numeric_features = [
+    "Age",
+    "BodyweightKg",
+    "BestSquatKg",
+    "BestBenchKg",
+    "BestDeadliftKg"
+]
+categorical_features = [
+    "Sex",
+    "Equipment",
+    "WeightClassKg"
+]
+
+encode = OneHotEncoder()
+df_encoded=encode.fit_transform(df[categorical_features]).toarray()
+
+str = StandardScaler()
+df_scaled=str.fit_transform(df[numeric_features])
+
+
+X = np.hstack([df_scaled, df_encoded])
+y = df["TotalKg"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+model = XGBRegressor(
+    n_estimators=500,
+    learning_rate=0.05,
+    max_depth=6,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    objective="reg:squarederror",
+    random_state=42,
+    n_jobs=-1
+)
+
+model.fit(
+    X_train,
+    y_train
+)
+
+y_pred = model.predict(X_test)
+r2 = r2_score(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+errors = y_test - y_pred
+
+print(errors.describe())
+print(f"R2 Score from XGBoostRegressor is : {r2:.4f}")
+print(f"Mean Absolute Error is: {mae:.2f} Kg")
+
+plt.figure(figsize=(8, 5))
+plt.scatter(y_test, y_pred, alpha=0.3)
+plt.xlabel("Actual TotalKg")
+plt.ylabel("Predicted TotalKg")
+plt.title("Actual vs Predicted TotalKg")
+plt.show()

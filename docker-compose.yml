@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# docker-compose.yml
+# LLM Satisfaction Predictor — Backend (FastAPI) + Frontend (Streamlit)
+#
+# Prerequisites:
+#   1. Run `python src/train.py` to generate models/satisfaction_pipeline.pkl
+#   2. Run `docker compose up --build`
+#
+# Services:
+#   backend   → FastAPI on http://localhost:8000  (docs at /docs)
+#   frontend  → Streamlit on http://localhost:8501
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+
+  # ── FastAPI backend ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llm_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount model and artifact dirs so the container always uses the latest files
+      - ./models:/app/models
+      - ./artifacts:/app/artifacts
+    environment:
+      - DATA_PATH=/app/data/raw/genai_llm_usage_dataset_1000.csv
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Streamlit frontend ──────────────────────────────────────────────────────
+  frontend:
+    image: python:3.11-slim
+    container_name: llm_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app/frontend
+      - ./requirements.txt:/app/requirements.txt
+    # Install only the packages the frontend needs, then start Streamlit
+    command: >
+      bash -c "pip install --quiet streamlit requests python-dotenv &&
+               streamlit run frontend/streamlit_app.py
+               --server.port=8501
+               --server.address=0.0.0.0
+               --server.headless=true"
+    ports:
+      - "8501:8501"
+    environment:
+      # The frontend calls the backend by Docker service name (not localhost)
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

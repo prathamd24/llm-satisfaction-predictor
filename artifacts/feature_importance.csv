@@ -1,0 +1,24 @@
+feature,importance
+top_p,0.051135056
+task_type_Code Generation,0.050511204
+application_domain_Retail,0.048493333
+task_type_RAG,0.047340963
+task_type_Summarization,0.0472119
+application_domain_Finance,0.04711122
+model_name_Llama 3.1,0.046468906
+application_domain_Customer Support,0.04610306
+prompt_length,0.045909703
+model_name_Claude 3.7,0.04557333
+temperature,0.045297306
+task_type_QA,0.04395992
+application_domain_Coding,0.04320013
+model_name_GPT-4o,0.043194886
+model_name_Mistral Large,0.04158287
+application_domain_Legal,0.04074968
+task_type_Classification,0.0406952
+application_domain_Healthcare,0.03945317
+model_name_Gemma 3,0.03872379
+rag_enabled,0.03857539
+application_domain_Education,0.03733874
+task_type_Translation,0.037092093
+model_name_Qwen 2.5,0.034278248

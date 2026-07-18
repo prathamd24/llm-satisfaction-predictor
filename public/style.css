@@ -86,8 +86,9 @@ body {
 .logo {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, var(--primary), #8b5cf6);
-    border-radius: 12px;
+    border-radius: 10px;
+    margin-right: 12px;
+    object-fit: cover;
 }
 
 .auth-box h2 {
@@ -143,8 +144,9 @@ body {
 .logo-sm {
     width: 28px;
     height: 28px;
-    background: linear-gradient(135deg, var(--primary), #8b5cf6);
     border-radius: 6px;
+    margin-right: 10px;
+    object-fit: cover;
 }
 
 .user-menu {

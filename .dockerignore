@@ -1,0 +1,11 @@
+.git
+.gitignore
+.firebaserc
+firebase.json
+data/raw/*.csv
+data/processed/
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env

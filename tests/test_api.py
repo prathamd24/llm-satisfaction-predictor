@@ -39,8 +39,15 @@ VALID_PAYLOAD = {
 def client():
     from fastapi.testclient import TestClient
     from app.main import app
+    from app.auth import verify_firebase_token
+    
+    # Mock the Firebase token verification so we don't need real Google tokens for CI tests
+    app.dependency_overrides[verify_firebase_token] = lambda: {"uid": "test_user_123"}
+    
     with TestClient(app) as c:
         yield c
+        
+    app.dependency_overrides.clear()
 
 
 # ── GET / ─────────────────────────────────────────────────────────────────────

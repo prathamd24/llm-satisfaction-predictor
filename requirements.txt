@@ -18,10 +18,10 @@ seaborn>=0.12.0
 fastapi>=0.110.0
 uvicorn[standard]>=0.27.0
 pydantic>=2.5.0
+firebase-admin>=6.5.0
 
-# ── Frontend ──────────────────────────────────────────────────────────────────
-streamlit>=1.32.0
-requests>=2.31.0
+# ── Frontend (Firebase Native HTML/JS) ────────────────────────────────────────
+# No Python dependencies required for frontend.
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 pytest>=7.4.0

@@ -23,11 +23,12 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from app.auth import verify_firebase_token
 from app.schemas import HealthResponse, PredictionRequest, PredictionResponse, RootResponse
 from app.services import get_prediction, is_model_loaded
 from src.predict import load_pipeline
@@ -88,7 +89,10 @@ def health() -> HealthResponse:
     tags=["Prediction"],
     summary="Predict user satisfaction score",
 )
-def predict_satisfaction(request: PredictionRequest) -> PredictionResponse:
+def predict_satisfaction(
+    request: PredictionRequest,
+    user: dict = Depends(verify_firebase_token)
+) -> PredictionResponse:
     """
     Predict the expected user satisfaction score for an LLM usage session.
 

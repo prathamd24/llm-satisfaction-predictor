@@ -39,27 +39,4 @@ services:
       retries: 3
       start_period: 15s
 
-  # ── Streamlit frontend ──────────────────────────────────────────────────────
-  frontend:
-    image: python:3.11-slim
-    container_name: llm_frontend
-    working_dir: /app
-    volumes:
-      - ./frontend:/app/frontend
-      - ./requirements.txt:/app/requirements.txt
-    # Install only the packages the frontend needs, then start Streamlit
-    command: >
-      bash -c "pip install --quiet streamlit requests python-dotenv &&
-               streamlit run frontend/streamlit_app.py
-               --server.port=8501
-               --server.address=0.0.0.0
-               --server.headless=true"
-    ports:
-      - "8501:8501"
-    environment:
-      # The frontend calls the backend by Docker service name (not localhost)
-      - BACKEND_URL=http://backend:8000
-    depends_on:
-      backend:
-        condition: service_healthy
-    restart: unless-stopped
+

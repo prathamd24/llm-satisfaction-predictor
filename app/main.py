@@ -127,5 +127,5 @@ def predict_satisfaction(
         logger.exception("Unexpected prediction error.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An internal error occurred during prediction.",
+            detail=f"An internal error occurred during prediction: {str(exc)}",
         )

@@ -119,11 +119,13 @@ predictForm.addEventListener('submit', async (e) => {
         } else if (response.status === 401) {
             apiError.textContent = "Session expired. Please sign out and sign in again.";
             auth.signOut();
-        } else if (response.status === 422) {
-            const errData = await response.json();
-            apiError.textContent = "Validation error: " + JSON.stringify(errData.detail);
         } else {
-            apiError.textContent = `Server error ${response.status}. Make sure the backend is running.`;
+            try {
+                const errData = await response.json();
+                apiError.textContent = `Server Error ${response.status}: ` + (errData.detail || JSON.stringify(errData));
+            } catch (e) {
+                apiError.textContent = `Server error ${response.status}. Make sure the backend is running.`;
+            }
         }
     } catch (error) {
         apiError.textContent = `Network error: Could not reach backend at ${BACKEND_URL}.`;

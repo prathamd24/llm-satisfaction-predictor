@@ -21,21 +21,26 @@ logger = logging.getLogger(__name__)
 # FastAPI security scheme to extract the Bearer token
 security = HTTPBearer(auto_error=False)
 
+import json
+
 # Initialize Firebase Admin SDK
-# It expects the GOOGLE_APPLICATION_CREDENTIALS environment variable
-# to point to a service account JSON file.
 try:
-    if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
-        logger.warning(
-            "GOOGLE_APPLICATION_CREDENTIALS environment variable is not set. "
-            "Firebase Auth will fail until this is configured."
-        )
-    # Initialize the default app using the environment credentials
-    initialize_app()
-    logger.info("Firebase Admin SDK initialized successfully.")
+    firebase_json_str = os.getenv("FIREBASE_CREDENTIALS_JSON")
+    if firebase_json_str:
+        cred_dict = json.loads(firebase_json_str)
+        cred = credentials.Certificate(cred_dict)
+        initialize_app(cred)
+        logger.info("Firebase Admin SDK initialized from FIREBASE_CREDENTIALS_JSON string.")
+    else:
+        if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+            logger.warning(
+                "Neither FIREBASE_CREDENTIALS_JSON nor GOOGLE_APPLICATION_CREDENTIALS is set. "
+                "Firebase Auth will fail until this is configured."
+            )
+        initialize_app()
+        logger.info("Firebase Admin SDK initialized using default credentials.")
 except ValueError as e:
-    # App already initialized (can happen during hot reloads)
-    logger.debug(f"Firebase app already initialized: {e}")
+    logger.debug(f"Firebase app initialization error (might be already initialized): {e}")
 except Exception as e:
     logger.error(f"Failed to initialize Firebase Admin SDK: {e}")
 
@@ -83,11 +88,11 @@ def verify_firebase_token(
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except ValueError:
+    except ValueError as e:
         # App not initialized properly
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Firebase Auth is not properly configured on the server",
+            detail=f"Firebase Auth is not properly configured on the server: {str(e)}",
         )
     except Exception as e:
         logger.error(f"Error verifying token: {e}")
